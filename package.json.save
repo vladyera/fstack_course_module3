@@ -1,5 +1,5 @@
 {
-  "name": "fstack_course_module3",
+  "name": "node-lesson-helsinki",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -16,3 +16,12 @@
     "nodemon": "^3.1.4"
   }
 }
+
+
+{
+  "name": "fstack_course_module3",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+ 
