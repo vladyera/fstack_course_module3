@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+
 // Adding JSON parser
 app.use(express.json());
 
@@ -32,8 +33,20 @@ app.get('/api/persons', (request, response) => {
   response.json(persons);
 });
 
+app.get('/api/info', (request, response) => {
+  const numberOfPersons = persons.length;
+  const currentTime = new Date();
+  currentTime.setHours(currentTime.getHours() + 2);
+  const currentTimeGMTPlus2 = currentTime.toISOString().replace(/T/, ' ').replace(/\..+/, '') + " GMT+2";
+  const htmlContent = `
+    <p>Phonebook has info for ${numberOfPersons} people</p>
+    <p>${currentTimeGMTPlus2} (Eastern European Standard Time)</p>
+  `;
+  response.send(htmlContent);
+});
+
 // Listen
-const PORT = 3001
+const PORT = 3001;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+  console.log(`Server running on port ${PORT}`);
+});
