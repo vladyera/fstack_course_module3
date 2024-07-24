@@ -60,6 +60,29 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end();
 });
 
+
+const generateId = () => {
+  const newId = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+  return newId;
+};
+
+// POST
+app.post('/api/persons', (request, response) => {
+  const body = request.body;
+  if (!body.name || !body.number) {
+    return response.status(400).json({
+      error: 'Name or number is missing'
+    })
+  };
+  const person = {
+    name: body.name,
+    number: body.number,
+    id: generateId(),
+  };
+  persons = persons.concat(person);
+  response.json(person);
+});
+
 // Listen
 const PORT = 3001;
 app.listen(PORT, () => {
