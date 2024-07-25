@@ -5,7 +5,8 @@ const morgan = require('morgan');
 // Adding JSON parser
 app.use(express.json());
 // Logger
-app.use(morgan('tiny'));
+morgan.token('body', (req) => req.method === 'POST' ? JSON.stringify(req.body) : '');
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
 
 // Phonebook default
 let persons = [
