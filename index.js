@@ -1,8 +1,11 @@
 const express = require('express');
 const app = express();
+const morgan = require('morgan');
 
 // Adding JSON parser
 app.use(express.json());
+// Logger
+app.use(morgan('tiny'));
 
 // Phonebook default
 let persons = [
