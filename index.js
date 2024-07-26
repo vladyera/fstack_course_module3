@@ -5,7 +5,8 @@ const cors = require('cors');
 
 // CORS
 app.use(cors());
-
+// For static website
+app.use(express.static('dist'));
 // Adding JSON parser
 app.use(express.json());
 // Logger
