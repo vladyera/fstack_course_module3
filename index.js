@@ -16,14 +16,14 @@ morgan.token('body', (req) => req.method === 'POST' ? JSON.stringify(req.body) :
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 // GET
-app.get('/api/persons', (request, response) => {
+app.get('/api/persons', (request, response, next) => { // Added next
   Person.find({}).then(persons => {
     response.json(persons)
   })
     .catch(error => next(error))
 })
 
-app.get('/api/info', (request, response) => {
+app.get('/api/info', (request, response, next) => { // Added next
   Person.find({}).then(persons => {
     const numberOfPersons = persons.length
     const currentTime = new Date()
@@ -38,7 +38,7 @@ app.get('/api/info', (request, response) => {
     .catch(error => next(error))
 })
 
-app.get('/api/persons/:id', (request, response, next) => {
+app.get('/api/persons/:id', (request, response, next) => { // Added next
   Person.findById(request.params.id)
     .then(person => {
       if (person) {
@@ -51,7 +51,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 })
 
 // DELETE
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => { // Added next
   Person.findByIdAndDelete(request.params.id)
     .then(() => {
       response.status(204).end()
