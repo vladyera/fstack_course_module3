@@ -44,35 +44,44 @@ app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
     response.json(persons);
   })
+    .catch(error => next(error));
 });
 
 app.get('/api/info', (request, response) => {
-  const numberOfPersons = persons.length;
-  const currentTime = new Date();
-  currentTime.setHours(currentTime.getHours() + 2);
-  const currentTimeGMTPlus2 = currentTime.toISOString().replace(/T/, ' ').replace(/\..+/, '') + " GMT+2";
-  const htmlContent = `
+  Person.find({}).then(persons => {
+    const numberOfPersons = persons.length;
+    const currentTime = new Date();
+    currentTime.setHours(currentTime.getHours() + 2);
+    const currentTimeGMTPlus2 = currentTime.toISOString().replace(/T/, ' ').replace(/\..+/, '') + " GMT+2";
+    const htmlContent = `
     <p>Phonebook has info for ${numberOfPersons} people</p>
     <p>${currentTimeGMTPlus2} (Eastern European Standard Time)</p>
   `;
-  response.send(htmlContent);
+    response.send(htmlContent);
+  })
+    .catch(error => next(error));
 });
 
-app.get('/api/persons/:id', (request, response) => {
-  const person = persons.find(p => p.id === request.params.id);
-  if (!person) {
-    response.status(404).end();
-  }
-  response.json(person);
+app.get('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id)
+    .then(person => {
+      if (person) {
+        response.json(person);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch(error => next(error));
 });
 
 // DELETE
 app.delete('/api/persons/:id', (request, response) => {
-  const id = request.params.id;
-  persons = persons.filter(p => p.id !== id);
-  response.status(204).end();
+  Person.findByIdAndDelete(request.params.id)
+    .then(result => {
+      response.status(204).end()
+    })
+    .catch(error => next(error));
 });
-
 
 const generateId = () => {
   const newId = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
@@ -85,8 +94,8 @@ app.post('/api/persons', (request, response) => {
   if (!body.name || !body.number) {
     return response.status(400).json({
       error: 'name or number is missing'
-    })
-  };
+    });
+  }
   const person = new Person({
     name: body.name,
     number: body.number,
@@ -95,6 +104,49 @@ app.post('/api/persons', (request, response) => {
     response.json(savedPerson);
   });
 });
+
+// PUT
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body;
+
+  if (!body.name || !body.number) {
+    return response.status(400).json({
+      error: 'name or number is missing'
+    });
+  }
+
+  const person = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then(updatedPerson => {
+      if (updatedPerson) {
+        response.json(updatedPerson);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch(error => next(error));
+});
+
+
+
+// Error handlers in middleware
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' });
+};
+app.use(unknownEndpoint);
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' });
+  }
+  next(error);
+};
+app.use(errorHandler);
 
 // Listen
 const PORT = process.env.PORT || 3001;
